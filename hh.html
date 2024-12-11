@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>برنامج التشفير</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://www.almrsal.com/wp-content/uploads/2019/03/%D8%AA%D8%B4%D9%81%D9%8A%D8%B1-%D8%A7%D9%84%D9%85%D8%B9%D9%84%D9%88%D9%85%D8%A7%D8%AA.jpeg'); /* مسار الصورة */
+            background-size: cover;
+            background-position: center;
+            color: #333;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8); /* خلفية شفافة */
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background-color: green;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: darkgreen;
+        }
+        footer {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            text-align: center;
+            color: #fff;
+        }
+        .user-info {
+            font-size: 18px;
+            font-weight: bold;
+            color: #000; /* اللون الأسود */
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- عرض معلومات المستخدم -->
+        <div class="user-info">
+            حسين علي عبدالله / هندسة الأمن السيبراني / B
+        </div>
+
+        <h1>برنامج التشفير</h1>
+        <label for="operation">اختر العملية:</label>
+        <select id="operation">
+            <option value="encrypt">تشفير</option>
+            <option value="decrypt">فك التشفير</option>
+        </select>
+
+        <label for="method">اختر طريقة التشفير:</label>
+        <select id="method">
+            <option value="caesar">شفرة القيصر</option>
+            <option value="vigenere">شفرة فيجنير</option>
+        </select>
+
+        <input type="text" id="text" placeholder="ادخل النص الذي تريد معالجته">
+        <input type="number" id="shift" placeholder="ادخل قيمة التحريك (للقيصر فقط)" style="display: none;">
+        <input type="text" id="key" placeholder="ادخل المفتاح (لفيجنير فقط)" style="display: none;">
+        <button onclick="processText()">تنفيذ</button>
+        <p id="result"></p>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 حسين علي عبدالله جرمط. جميع الحقوق محفوظة.</p>
+    </footer>
+
+    <script>
+        document.getElementById('method').addEventListener('change', function() {
+            if (this.value === 'caesar') {
+                document.getElementById('shift').style.display = 'block';
+                document.getElementById('key').style.display = 'none';
+            } else {
+                document.getElementById('shift').style.display = 'none';
+                document.getElementById('key').style.display = 'block';
+            }
+        });
+
+        function caesarCipher(text, shift, operation) {
+            if (operation === 'decrypt') {
+                shift = -shift;
+            }
+
+            let result = "";
+            for (let char of text) {
+                if (char.match(/[a-z]/i)) {
+                    let shiftBase = char === char.toUpperCase() ? 65 : 97;
+                    result += String.fromCharCode((char.charCodeAt(0) - shiftBase + shift + 26) % 26 + shiftBase);
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        function vigenereCipher(text, key, operation) {
+            let result = "";
+            key = key.toLowerCase();
+            let keyIndex = 0;
+
+            for (let char of text) {
+                if (char.match(/[a-z]/i)) {
+                    let shift = key.charCodeAt(keyIndex) - 97;
+                    if (operation === 'decrypt') {
+                        shift = -shift;
+                    }
+
+                    let shiftBase = char === char.toUpperCase() ? 65 : 97;
+                    result += String.fromCharCode((char.charCodeAt(0) - shiftBase + shift + 26) % 26 + shiftBase);
+                    keyIndex = (keyIndex + 1) % key.length;
+                } else {
+                    result += char;
+                }
+            }
+            return result;
+        }
+
+        function processText() {
+            const operation = document.getElementById('operation').value;
+            const method = document.getElementById('method').value;
+            const text = document.getElementById('text').value;
+            let result = "";
+
+            if (method === 'caesar') {
+                const shift = parseInt(document.getElementById('shift').value);
+                result = caesarCipher(text, shift, operation);
+            } else if (method === 'vigenere') {
+                const key = document.getElementById('key').value;
+                result = vigenereCipher(text, key, operation);
+            }
+
+            document.getElementById('result').innerText = (operation === 'encrypt' ? "النص المشفر: " : "النص المفكوك: ") + result;
+        }
+    </script>
+</body>
+</html>
